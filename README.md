@@ -1,12 +1,12 @@
 # MATLAB + Simulink 通信仿真
 
-这是一个面向 Codex/AI Agent 的可复用 Skill，用于自动检查、运行、出图、验证和解释 MATLAB/Simulink 通信系统仿真。项目采用配置驱动方式，内置经过验证的 16QAM 真实载波示例，同时为 QPSK、BPSK、64QAM、OFDM、FM 以及自定义 DSP 模型预留扩展接口。
+这是一个面向各种 AI Agent 和自动化工具的可复用 MATLAB + Simulink 通信仿真工作流，用于自动检查、运行、出图、验证和解释通信系统仿真。项目采用配置驱动方式，内置经过验证的 16QAM 真实载波示例，同时为 QPSK、BPSK、64QAM、OFDM、FM 以及自定义 DSP 模型预留扩展接口。它不依赖某一个 AI 厂商，任何能够读取说明文件、修改 JSON、运行命令或控制桌面软件的智能体都可以接入。
 
-英文检索关键词：MATLAB Simulink communications simulation automation, digital communications, 16QAM, BER, SER, signal processing, AI agent, Codex skill。
+英文检索关键词：MATLAB Simulink communications simulation automation, digital communications, 16QAM, BER, SER, signal processing, AI agent, agent skills。
 
 ## 项目简介
 
-它适合通信原理课程设计、实验室模型、教学演示和重复性仿真任务。用户可以用一句自然语言提出目标，AI 再根据工程配置完成模型发现、运行、批量出图、指标校验和结果解释。
+它适合通信原理课程设计、实验室模型、教学演示和重复性仿真任务。用户可以用一句自然语言提出目标，任意 AI 助手再根据工程配置完成模型发现、运行、批量出图、指标校验和结果解释。
 
 ## 核心能力
 
@@ -27,7 +27,7 @@ For the supplied 16QAM example:
 
 ## 仓库结构
 
-`SKILL.md` is the Codex entry point. `references/` contains workflow and domain guidance. `scripts/` contains deterministic discovery, execution, and output checks. `templates/` contains a portable JSON configuration. `examples/16qam/` documents the adapter contract without publishing a personal course model or absolute path.
+`SKILL.md` 是通用智能体入口。`references/` 包含工作流和领域说明，`scripts/` 包含确定性的发现、运行和输出检查脚本，`templates/` 包含可移植 JSON 配置，`examples/16qam/` 说明适配器契约但不发布个人课程模型或绝对路径。`agents/openai.yaml` 只是部分宿主的可选界面元数据，不是运行依赖。
 
 ## 快速开始
 
@@ -48,11 +48,15 @@ For the supplied 16QAM example:
 
    `powershell -File scripts/verify_outputs.ps1 -Directory C:/path/to/project/results`
 
-运行模型需要安装 MATLAB 和 Simulink；若要通过窗口点击运行，还需要本机可用的 `agent-desktop` 能力。
+运行模型需要安装 MATLAB 和 Simulink。GUI 控制需要任意可用的桌面自动化连接器；没有桌面连接器时，仍可用 MATLAB 批处理和普通 Shell 工具运行工作流。
 
 ## 16QAM 示例
 
 The example uses 8000 bits, 2000 symbols, 4 bits per symbol, 2 kHz carrier, 10 kHz sample rate, 50 samples per symbol, Gray-coded levels `[-3,-1,1,3]/sqrt(10)`, coherent I/Q demodulation, rectangular matched filtering, and an Eb/N0 sweep of `0:2:20` dB. Read [examples/16qam/README.md](examples/16qam/README.md) and [references/16qam-reference.md](references/16qam-reference.md) for the adapter contract and figure meanings.
+
+## 跨智能体接入
+
+最小接入要求只有四项：读取 `SKILL.md` 和相关参考文档，填写 `templates/run_config.json`，调用 `scripts/` 中的脚本，最后检查输出契约。ChatGPT/Codex、Claude、Gemini、开源 Agent、CI 机器人或人工用户都可以采用同一套配置和结果目录约定。宿主若不支持 PowerShell，可以把相同 JSON 契约映射到 Bash、Python 或 Node.js 包装器；模型与验证逻辑无需改变。
 
 ## 可进化与扩展
 
@@ -64,6 +68,6 @@ Never commit MATLAB license data, access tokens, passwords, local credentials, o
 
 ## 开源协议与贡献
 
-This project is released under the MIT License. See [CONTRIBUTING.md](CONTRIBUTING.md) for adapter and documentation guidelines.
+本项目采用 MIT License。适配器和文档贡献规范见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 Useful search terms: `matlab`, `simulink`, `matlab automation`, `simulink automation`, `digital communications`, `16QAM`, `QAM`, `BER`, `SER`, `signal processing`, `simulation`, `AI agent`, `Codex skill`, and `desktop automation`.

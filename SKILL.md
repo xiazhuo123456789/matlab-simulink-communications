@@ -1,11 +1,11 @@
 ---
 name: matlab-simulink-communications
-description: Automate, inspect, verify, and explain MATLAB/Simulink communication-system simulations. Use when a user wants a model built or run, standard figures generated, BER/SER checked, or results explained. Supports configurable examples such as 16QAM and is designed to extend to other modulation and DSP workflows.
+description: Cross-agent workflow for automating, inspecting, verifying, and explaining MATLAB/Simulink communication-system simulations. Use from any AI assistant or automation host when a user wants a model built or run, figures generated, BER/SER checked, or results explained. Supports configurable examples such as 16QAM and extensions to other modulation and DSP workflows.
 ---
 
-# MATLAB Simulink Communications
+# MATLAB + Simulink Communications
 
-Use this skill for repeatable MATLAB/Simulink communication-system work. The skill is model-aware, but it must not assume the user's project lives at a fixed path or that every model is 16QAM.
+Use this portable workflow for repeatable MATLAB/Simulink communication-system work. It is independent of a particular AI vendor, desktop agent, or orchestration framework. An assistant can follow the Markdown instructions, update the JSON configuration, and call the included PowerShell/MATLAB entry points. Do not assume the user's project lives at a fixed path or that every model is 16QAM.
 
 ## Choose an operating mode
 
@@ -25,7 +25,7 @@ Use this skill for repeatable MATLAB/Simulink communication-system work. The ski
 
 ## MATLAB and Simulink operation
 
-- Use the MATLAB/Simulink GUI when the user asks for clicking, screenshots, or `agent-desktop` control. Read the `agent-desktop` skill before interacting with the desktop.
+- Use the MATLAB/Simulink GUI when the user asks for clicking or screenshots. A desktop automation connector is optional; the core workflow also works through MATLAB batch mode and ordinary shell tools.
 - Use `matlab -batch` or the project's existing `.m` entry point for deterministic verification when GUI interaction is not required.
 - Reuse an existing MATLAB process when possible. Do not launch duplicate instances without a reason.
 - Never change solver settings, model blocks, random seeds, or channel parameters merely to make a run pass. Inspect logs and model status first.
