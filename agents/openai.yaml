@@ -1,0 +1,4 @@
+interface:
+  display_name: "MATLAB + Simulink 通信仿真"
+  short_description: "自动运行、验证并解释 MATLAB/Simulink 通信系统仿真"
+  default_prompt: "使用 MATLAB + Simulink 通信仿真技能检查我的工程，运行模型，生成配置的仿真图，验证 BER/SER，并解释结果。"

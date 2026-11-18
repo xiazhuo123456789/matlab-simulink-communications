@@ -1,0 +1,18 @@
+# MATLAB and Simulink generated files
+*.asv
+*.autosave
+*.slxc
+slprj/
+*.m~
+
+# Local results and logs
+results/
+logs/
+*.log
+*.mat
+*.fig
+
+# Local configuration and credentials
+local-*.json
+.env
+.DS_Store
