@@ -1,3 +1,9 @@
-# Contributing
+# 贡献与演进
 
-Add focused adapters and references. Keep paths configurable, avoid proprietary model binaries unless you have redistribution rights, and include a reproducible output manifest and verification notes. Run the Skill validator and PowerShell syntax checks before opening a pull request.
+新增适配器请放入 examples/独立名称/，提供 MATLAB 源码、配置、输出清单和验证方法。避免依赖个人路径、作者原工程或未授权资源。
+
+采用“实际问题 → 最小复现 → 必要测试 → 修正 → 验证记录”的改进方式。新功能未经运行不能标记已支持；新 MATLAB 版本、宿主或平台的实测结果请补充到 VALIDATION.md。
+
+提交前运行 `python -m unittest discover -s tests -v`。涉及 MATLAB 时，在新输出目录执行示例并检查无噪声错误、判决对照、计数与分母和图像。涉及配置契约的不兼容变更需增加 schemaVersion 并说明迁移方式。
+
+请勿提交访问令牌、许可证、个人路径、生成的缓存或大体积仿真数据。可提交经过检查的少量预览图和不含个人信息的测试摘要。保持 README 中文简介准确，英文检索词应对应真实能力。

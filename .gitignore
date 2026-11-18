@@ -11,8 +11,12 @@ logs/
 *.log
 *.mat
 *.fig
+examples/16qam/results/
+examples/16qam/local-test.json
 
 # Local configuration and credentials
 local-*.json
 .env
 .DS_Store
+__pycache__/
+*.pyc

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "projectRoot": ".",
+  "entryPoint": "run_example.m",
+  "timeoutSeconds": 1200,
+  "parameters": {
+    "bits": 8000,
+    "ebN0Db": 10,
+    "sweepDb": [
+      0,
+      2,
+      4,
+      6,
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      20
+    ],
+    "bitSeed": 20261116,
+    "noiseSeed": 13579
+  },
+  "outputs": {
+    "directory": "results/default",
+    "metricsFile": "metrics.json",
+    "requiredFiles": [
+      "msc_16qam.slx",
+      "model.png",
+      "01_input_bits.png",
+      "02_tx_iq.png",
+      "03_carrier.png",
+      "04_tx_constellation.png",
+      "05_rx_constellation.png",
+      "06_recovered_iq.png",
+      "07_recovered_bits.png",
+      "08_ber_ser.png",
+      "ber_results.csv",
+      "results.mat",
+      "metrics.json",
+      "report.md"
+    ]
+  }
+}

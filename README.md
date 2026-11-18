@@ -1,73 +1,78 @@
 # MATLAB + Simulink 通信仿真
 
-这是一个面向各种 AI Agent 和自动化工具的可复用 MATLAB + Simulink 通信仿真工作流，用于自动检查、运行、出图、验证和解释通信系统仿真。项目采用配置驱动方式，内置经过验证的 16QAM 真实载波示例，同时为 QPSK、BPSK、64QAM、OFDM、FM 以及自定义 DSP 模型预留扩展接口。它不依赖某一个 AI 厂商，任何能够读取说明文件、修改 JSON、运行命令或控制桌面软件的智能体都可以接入。
+**让具备本地工具权限的 AI 智能体，通过一句话完成通信系统建模、运行、出图和解释。**
 
-英文检索关键词：MATLAB Simulink communications simulation automation, digital communications, 16QAM, BER, SER, signal processing, AI agent, agent skills。
+这是一个不绑定 AI 厂商的 Agent Skill：核心由开放的 `SKILL.md`、JSON 配置、Python 标准库工具和 MATLAB 源码组成。支持原生加载 Agent Skills 的宿主，也支持让其他智能体直接读取说明并调用脚本。无需 OpenAI SDK、云 API Key 或指定桌面控制软件。
 
-## 项目简介
+> 请读取这个项目的 SKILL.md，用 MATLAB + Simulink 建立 16QAM 通信系统，运行仿真，生成全部八张结果图和系统图，验证误码率，并解释每张图。
 
-它适合通信原理课程设计、实验室模型、教学演示和重复性仿真任务。用户可以用一句自然语言提出目标，任意 AI 助手再根据工程配置完成模型发现、运行、批量出图、指标校验和结果解释。
+## 当前能做什么
 
-## 核心能力
+- **下载即可复现的 16QAM 示例**：从 MATLAB 源码自动生成真正的 `.slx` 模型，顶层展示标准模块和连线。
+- **完整链路**：比特输入 → Gray 映射 → I/Q 正交载波调制 → AWGN → 相干解调 → 匹配滤波 → 判决 → BER/SER 统计。统计由适配器从 Simulink 导出的收发数据计算。
+- **八张结果图 + 系统结构图**，另存可编辑 FIG、CSV、MAT、指标 JSON、运行日志和说明报告。
+- **验证**：无噪声零误码、收发时序对齐、独立 Gray 判决对照、BER/SER 计数与分母核对、必需文件检查。
+- **通用入口**：Python 标准库实现工程发现、运行、验证；不依赖某个智能体 SDK。
+- **可扩展适配器**：新通信模型可复用配置、执行和验证流程。QPSK、BPSK、64QAM、OFDM、FM 属于后续扩展方向，当前没有宣称已经实现。
 
-- discovers `.slx` models and MATLAB entry points without assuming a fixed user path;
-- runs a selected model through MATLAB batch mode or the MATLAB/Simulink GUI;
-- generates a stable set of time-domain, constellation, BER/SER, CSV, MAT, and report outputs;
-- verifies dimensions, required files, BER/SER denominators, and finite-sample limits;
-- explains the signal chain and figures in plain language for reports and oral defenses;
-- keeps model-specific assumptions in adapters instead of hard-coding them into the core skill.
+## 能否用于所有智能体？
 
-## 一句话使用
+设计目标是跨智能体使用，但不承诺所有产品都能自动安装或执行。宿主必须能读取本地文件、执行命令，并访问有合法许可的 MATLAB/Simulink。纯聊天窗口、没有本地工具的模型不能直接运行软件。
 
-> 使用 MATLAB + Simulink 通信仿真，检查我的工程，运行选定模型，生成全部配置的结果图，验证 BER/SER，并解释输出。
+| 接入方式 | 使用方式 | 限制 |
+|---|---|---|
+| 原生 Agent Skills 宿主 | 按宿主文档安装包含 SKILL.md 的目录 | 自动发现路径和配置由宿主决定 |
+| 通用 AI / 自建 Agent | 读取 SKILL.md，再调用 Python 命令 | 需要文件和命令工具 |
+| 桌面操作智能体 | 使用用户选定的桌面连接器操作 MATLAB | 不强制使用 agent-desktop |
+| 人工 / CI | 直接运行以下命令 | 不需要 AI |
 
-For the supplied 16QAM example:
-
-> 使用 MATLAB + Simulink 通信仿真，运行我的 16QAM Simulink 模型，生成八张完整结果图和 BER/SER 扫描，验证指标，并解释每个模块。
-
-## 仓库结构
-
-`SKILL.md` 是通用智能体入口。`references/` 包含工作流和领域说明，`scripts/` 包含确定性的发现、运行和输出检查脚本，`templates/` 包含可移植 JSON 配置，`examples/16qam/` 说明适配器契约但不发布个人课程模型或绝对路径。`agents/openai.yaml` 只是部分宿主的可选界面元数据，不是运行依赖。
+`agents/openai.yaml` 仅是可选的宿主展示信息，删除它不会影响核心脚本。尚未逐一实测各品牌智能体的自动安装过程。详见 [跨智能体接入](AGENT_INTEGRATION.md)。
 
 ## 快速开始
 
-1. Copy `templates/run_config.json` and set `projectRoot`, `entryPoint`, and the output policy.
-2. Discover the project:
+准备 Python 3.10+、MATLAB 和 Simulink。示例采用基本 Simulink 模块，不调用 Communications Toolbox 函数。具体测试环境见 [验证记录](VALIDATION.md)，其他版本需自行验证。
 
-   `powershell -File scripts/discover_project.ps1 -Root C:/path/to/project`
+```sh
+git clone https://github.com/xiazhuo123456789/matlab-simulink-communications.git
+cd matlab-simulink-communications
+python scripts/workflow.py inspect examples/16qam
+python scripts/workflow.py run --config examples/16qam/config.json --dry-run
+python scripts/workflow.py run --config examples/16qam/config.json
+python scripts/workflow.py verify --config examples/16qam/config.json
+```
 
-3. Preview the MATLAB command:
+如果系统找不到 MATLAB，在运行命令末尾添加 `--matlab "MATLAB 可执行文件完整路径"`，或设置 `MATLAB_EXECUTABLE` 环境变量。
 
-   `powershell -File scripts/run_workflow.ps1 -Config run_config.json -DryRun`
+默认输出到 `examples/16qam/results/default/`。再次运行时，把配置中的 `outputs.directory` 改成一个新的目录名；工具拒绝复用已存在的输出目录，避免旧结果被误报为新仿真。运行期间可以查看该目录；Windows 下标准输出可能在 MATLAB 退出时才完整写入日志。
 
-4. Run the verified project entry point:
+不想输入命令：在 MATLAB 文件浏览器中打开 `examples/16qam/run_example.m`，点击编辑器的运行按钮。此方式会在 `results/` 下创建带时间戳的新目录；图像文件和 FIG 可直接双击打开。
 
-   `powershell -File scripts/run_workflow.ps1 -Config run_config.json`
+## 输出图说明
 
-5. Verify the output directory:
+| 文件 | 表达的内容 |
+|---|---|
+| model.png / msc_16qam.slx | 顶层 Simulink 模块与通信流程 |
+| 01_input_bits.png | 输入二进制比特和时间关系 |
+| 02_tx_iq.png | 发送端 I/Q 四电平基带信号 |
+| 03_carrier.png | 幅度、相位随符号变化的真实载波 |
+| 04_tx_constellation.png | 理想 16 点星座，每点携带 4 bit |
+| 05_rx_constellation.png | 带噪接收采样点与判决阈值 |
+| 06_recovered_iq.png | 发送符号与匹配滤波采样值对比 |
+| 07_recovered_bits.png | 恢复比特、误码位置和误码数量 |
+| 08_ber_ser.png | Eb/N0 扫描的 BER/SER 与理论 BER 近似 |
 
-   `powershell -File scripts/verify_outputs.ps1 -Directory C:/path/to/project/results`
+默认 8000 bit、2000 symbol、200 Baud、2 kHz 载波、10 kHz 采样、10 dB 基准，扫描 `0:2:20 dB`。可配置比特数、Eb/N0、扫描点和随机种子；载波及采样参数暂固定，以保持矩形符号内载波正交条件。高信噪比下零观测误码不代表真实 BER 为零。
 
-运行模型需要安装 MATLAB 和 Simulink。GUI 控制需要任意可用的桌面自动化连接器；没有桌面连接器时，仍可用 MATLAB 批处理和普通 Shell 工具运行工作流。
+## 可进化、可扩展
 
-## 16QAM 示例
+为新模型增加一个独立目录，提供 `run_example.m`、`config.json`、输出清单和验证方法即可。入口通过 `MSC_CONFIG_FILE` 和 `MSC_OUTPUT_DIR` 传递配置和输出位置。详细契约见 [workflow.md](references/workflow.md)。
 
-The example uses 8000 bits, 2000 symbols, 4 bits per symbol, 2 kHz carrier, 10 kHz sample rate, 50 samples per symbol, Gray-coded levels `[-3,-1,1,3]/sqrt(10)`, coherent I/Q demodulation, rectangular matched filtering, and an Eb/N0 sweep of `0:2:20` dB. Read [examples/16qam/README.md](examples/16qam/README.md) and [references/16qam-reference.md](references/16qam-reference.md) for the adapter contract and figure meanings.
+改进流程是“记录实际失败 → 添加可复现测试 → 修正适配器 → 更新验证记录”。工作流不会自行修改自身、联网下载代码或发布新版本；新能力需要开发、验证后合并。
 
-## 跨智能体接入
+## 成熟度与开源协议
 
-最小接入要求只有四项：读取 `SKILL.md` 和相关参考文档，填写 `templates/run_config.json`，调用 `scripts/` 中的脚本，最后检查输出契约。ChatGPT/Codex、Claude、Gemini、开源 Agent、CI 机器人或人工用户都可以采用同一套配置和结果目录约定。宿主若不支持 PowerShell，可以把相同 JSON 契约映射到 Bash、Python 或 Node.js 包装器；模型与验证逻辑无需改变。
+这是可复现的开源教学与工程起点，**不宣称已经获得商用级可靠性认证**。MIT 许可允许按协议商用、修改与分发，但 MATLAB/Simulink 需要独立授权；生产使用仍需针对自身场景验证。
 
-## 可进化与扩展
+已提供 Python 自动化测试和 Windows/Linux/macOS 的 [CI 模板](templates/ci-checks.yml)。当前发布凭据无 workflow 权限，云端 CI 尚未启用；有相应权限的维护者可将模板复制到 `.github/workflows/checks.yml`。模板检查通用执行工具，不包含 MATLAB 许可或完整 MATLAB 仿真测试。详见 [VALIDATION.md](VALIDATION.md)、[CONTRIBUTING.md](CONTRIBUTING.md)、[SECURITY.md](SECURITY.md) 和 [资料来源](references/sources.md)。
 
-Add an adapter with a model or MATLAB entry point, a configuration file, an output manifest, a verification function, and a short reference. Keep the core modes unchanged. This makes a new modulation or channel a data/configuration addition instead of a rewrite of the skill.
-
-## 安全
-
-Never commit MATLAB license data, access tokens, passwords, local credentials, or machine-specific absolute paths. GitHub authentication should use `gh auth login`, a credential manager, or a short-lived environment mechanism outside the repository. Review `SECURITY.md` before publishing.
-
-## 开源协议与贡献
-
-本项目采用 MIT License。适配器和文档贡献规范见 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
-Useful search terms: `matlab`, `simulink`, `matlab automation`, `simulink automation`, `digital communications`, `16QAM`, `QAM`, `BER`, `SER`, `signal processing`, `simulation`, `AI agent`, `Codex skill`, and `desktop automation`.
+检索关键词：MATLAB、Simulink、通信原理课程设计、通信系统仿真、自动建模、16QAM、星座图、误码率、BER、SER、Agent Skills、AI Agent、digital communications、signal processing。

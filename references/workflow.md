@@ -1,58 +1,36 @@
-# Reusable Workflow
+# Workflow contract v1
+
+The canonical runner is scripts/workflow.py (Python 3.10+, standard library). It needs no AI SDK, network service, API token, or GUI connector. A licensed local MATLAB/Simulink is needed for actual simulations.
 
 ## Configuration
 
-Use a small JSON file rather than hard-coded paths. The minimum useful fields are:
+Use examples/16qam/config.json as a working example. Required fields:
 
-```json
-{
-  "projectRoot": "C:/path/to/project",
-  "model": "my_model.slx",
-  "entryPoint": "run_simulation.m",
-  "mode": "full",
-  "metrics": {"ebN0Db": 10, "bits": 8000},
-  "outputs": {"directory": "results", "figures": ["time", "constellation", "ber"]}
-}
-```
+- schemaVersion: 1. Unknown schema versions fail.
+- projectRoot: directory relative to the config file, or an absolute local path; defaults to the config directory.
+- entryPoint: MATLAB .m script relative to projectRoot. This is executable project code: inspect it before executing an unfamiliar project.
+- timeoutSeconds: positive finite limit for the process (default 1200).
+- outputs.directory: relative to projectRoot or absolute; must not exist before a CLI run.
+- outputs.requiredFiles: nonempty list of nonempty files to verify; paths cannot escape the output directory.
+- outputs.metricsFile: optional relative JSON path for numeric metric checks.
+- parameters: adapter-specific values. The core passes these through; only the adapter consumes them. Do not imply arbitrary values affect a model that ignores them.
 
-`projectRoot` may be omitted when the caller already supplies the working directory. Paths are resolved relative to that root. Do not encode a single user's Windows path in a reusable script.
+The built-in adapter consumes bits (64..4000000, multiple of four), ebN0Db, increasing sweepDb (at least two points), bitSeed and noiseSeed. It fixes carrier/symbol/sample rates and rectangular pulse shaping. Other adapters declare their own parameters.
 
-## Run modes
+## Execution
 
-`inspect` discovers `.slx`, `.m`, `.mat`, `.csv`, and existing figure outputs. It must not execute or edit the model.
+The runner passes absolute MSC_CONFIG_FILE and MSC_OUTPUT_DIR environment variables to MATLAB. An adapter reads them with getenv, jsondecode and fileread, then writes its declared outputs. No user course model is modified by the bundled example.
 
-`run` opens or invokes the configured model. A project-specific entry point is preferred because it can set workspace variables, callbacks, and logging consistently.
+The MATLAB executable is chosen using --matlab, then MATLAB_EXECUTABLE, then PATH. A fresh output directory is created before starting MATLAB. Errors and timeouts return a failure and preserve logs. On a timeout, inspect the launched process before retrying; platform-specific child process cleanup is not guaranteed.
 
-`generate-figures` runs only the plotting/report stage when result data already exists. It should not silently re-run a long Eb/N0 sweep.
+The Python verifier checks files are nonempty. When metricsFile is set, it additionally checks integer bit/symbol counts, finite rates, exact rate/count consistency within numeric tolerance, and noiselessBitErrors=0. It cannot infer the scientific validity of arbitrary third-party models.
 
-`verify` checks that expected files exist, result arrays have matching lengths, BER/SER values are within `[0,1]`, and the report records the number of transmitted bits and symbols.
+## Modes
 
-`explain` maps each visible block to a signal-processing operation and distinguishes measured values from theoretical curves.
+inspect is read-only; run builds/runs the configured adapter; verify checks existing output without a new simulation. explain and GUI cleanup are agent workflows, not CLI subcommands. To generate figures without a simulation, use an adapter-specific plotting function and previously saved data. No generic plot-only command is claimed.
 
-## Output contract
+## Extension and evolution
 
-An adapter should write:
+Add a model adapter with executable MATLAB source, example configuration, an explicit output manifest, independent scientific checks, and a reference explaining assumptions. Share no hidden caller workspace. Record supported MATLAB releases and toolboxes after tests.
 
-- PNG figures for presentation;
-- optional MATLAB `.fig` files for later editing;
-- CSV for tabular BER/SER data;
-- MAT for reproducible result data;
-- a text or Markdown report containing parameters, run time, and verification status.
-
-Names should be stable and descriptive, for example `01_input_bits.png`, `04_tx_constellation.png`, and `08_ber_ser.png`.
-
-## Adapter design
-
-Keep the core skill model-agnostic. Put assumptions such as Gray mapping, carrier frequency, pulse shape, or known symbol timing in an example adapter. New adapters can target QPSK, BPSK, 64QAM, OFDM, FM, or custom laboratory models without changing the core entry point.
-
-Each adapter should expose:
-
-1. a model or MATLAB entry point;
-2. a configuration file;
-3. an output manifest;
-4. a verification function;
-5. a short explanation reference.
-
-## GUI behavior
-
-When desktop control is requested, observe the current state first, restore minimized windows, act on one MATLAB instance, and verify the model status and output folder after clicking Run. Leave the requested model open, but close only explicitly requested duplicate windows.
+For each improvement: reproduce a real failure, add a test where useful, change the narrow affected component, rerun validation, document remaining limitations, then submit a pull request. Increment schemaVersion for incompatible configuration changes. Do not claim planned modulations are implemented.

@@ -1,11 +1,17 @@
-# 16QAM 适配器
+# 可运行的 16QAM 示例
 
-这个示例说明如何把通用 Skill 连接到真实载波、Gray 编码的 16QAM 课程工程。
+本目录包含独立源码，不依赖作者的课程工程。build_model.m 使用标准 Simulink 模块建立真实载波 Gray 16QAM 模型；run_example.m 完成无噪声检查、基准仿真、Eb/N0 扫描和绘图。
 
-把 `projectRoot` 配置为包含 `.slx` 模型和 MATLAB 辅助脚本的目录，把 `entryPoint` 配置为工程已经验证过的运行脚本，例如 `run_all_16qam.m`。保留原始模型；如果回调或自动出图需要副本，就使用 click-run 副本。
+在仓库根目录执行：
 
-自然语言示例（任何 AI 助手都可以使用）：
+```sh
+python scripts/workflow.py run --config examples/16qam/config.json
+```
 
-> Use MATLAB Simulink Communications to run my 16QAM model, generate all configured figures, verify BER and SER at 10 dB and across the Eb/N0 sweep, then explain every block and figure.
+也可在 MATLAB 编辑器打开 run_example.m，点击运行。CLI 使用配置的输出目录并拒绝覆盖；编辑器运行创建带时间戳的结果目录。八张图保存为 PNG 和 FIG，不依赖弹出的窗口数量判断运行是否成功。
 
-适配器要求模型工程提供自己的绘图和验证函数。公开仓库不会包含个人绝对路径，也不会发布没有再分发授权的课程模型二进制文件。
+parameters 中支持 bits、ebN0Db、sweepDb、bitSeed、noiseSeed。固定采样率 10 kHz、载波 2 kHz、符号率 200 Baud；每符号正好 10 个载波周期。没有定时恢复、载波恢复环路或根升余弦成形。
+
+统计通过读取真正的 Simulink 输出计算，同时由独立阈值/Gray 解码器验证。BER 理论线采用常见高信噪比近似；零误码上界使用近似独立比特试验假设，同一 QAM 符号内的误码可能相关。不要据此宣称生产级统计保证。
+
+源代码按仓库 MIT 协议发布；MATLAB/Simulink 的安装与许可由用户自行提供。

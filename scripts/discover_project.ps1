@@ -7,9 +7,10 @@ param(
 
 $resolvedRoot = (Resolve-Path -LiteralPath $Root -ErrorAction Stop).Path
 $models = @(Get-ChildItem -LiteralPath $resolvedRoot -Recurse -File -Filter '*.slx' |
-    Where-Object { $_.Name -notlike '*.autosave' } |
+    Where-Object { $_.Name -notlike '*.autosave' -and $_.FullName -notmatch '[\\/](\.git|slprj|__pycache__)[\\/]' } |
     ForEach-Object { $_.FullName })
 $matlabFiles = @(Get-ChildItem -LiteralPath $resolvedRoot -Recurse -File -Filter '*.m' |
+    Where-Object { $_.FullName -notmatch '[\\/](\.git|slprj|__pycache__)[\\/]' } |
     ForEach-Object { $_.FullName })
 $result = [ordered]@{
     projectRoot = $resolvedRoot
