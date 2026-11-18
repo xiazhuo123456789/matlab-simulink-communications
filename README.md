@@ -28,6 +28,14 @@
 
 `agents/openai.yaml` 仅是可选的宿主展示信息，删除它不会影响核心脚本。尚未逐一实测各品牌智能体的自动安装过程。详见 [跨智能体接入](AGENT_INTEGRATION.md)。
 
+## 新旧 MATLAB 版本怎么适配？
+
+不需要作者逐个安装旧版本。AI 每次在使用者自己的电脑上先执行 [SKILL.md 中的环境自检](SKILL.md)，读取版本与实际可用能力，再选择直接运行或在副本中适配。新版本也走同样流程，不使用固定屏幕坐标或臆测版本号判断。
+
+遇到接口缺失时，例如 tiledlayout、exportgraphics 或 JSON 接口不可用，AI 按 [环境适配指南](references/environment-adaptation.md) 查询本机帮助并选择等价方式，完成小规模检查后再跑完整仿真。检测、适配和实际结果写入本地 environment-report.md。无需把使用者的环境上传到 GitHub。
+
+**这些是技能驱动的适配规则，不是现有脚本已内置所有版本的自动回退。** Markdown 文件本身不会执行检查，需要有工具权限的 AI 实际按文档操作。现在实际验证的是 R2024b；其他版本需在目标机验证后确认，无法提前保证所有历史或未来版本。缺软件、许可或必要能力时会报告具体原因。
+
 ## 快速开始
 
 准备 Python 3.10+、MATLAB 和 Simulink。示例采用基本 Simulink 模块，不调用 Communications Toolbox 函数。具体测试环境见 [验证记录](VALIDATION.md)，其他版本需自行验证。
@@ -71,7 +79,7 @@ python scripts/workflow.py verify --config examples/16qam/config.json
 
 ## 成熟度与开源协议
 
-这是可复现的开源教学与工程起点，**不宣称已经获得商用级可靠性认证**。MIT 许可允许按协议商用、修改与分发，但 MATLAB/Simulink 需要独立授权；生产使用仍需针对自身场景验证。
+这是可复现的开源教学与工程起点，**不宣称已经获得商用级可靠性认证**。MIT 许可允许按协议商用、修改与分发，但 MATLAB/Simulink 需要独立授权；生产使用仍需针对自身场景验证。当前质量复核、已验证能力和待补齐项见 [QUALITY.md](QUALITY.md)。
 
 已提供 Python 自动化测试和 Windows/Linux/macOS 的 [CI 模板](templates/ci-checks.yml)。当前发布凭据无 workflow 权限，云端 CI 尚未启用；有相应权限的维护者可将模板复制到 `.github/workflows/checks.yml`。模板检查通用执行工具，不包含 MATLAB 许可或完整 MATLAB 仿真测试。详见 [VALIDATION.md](VALIDATION.md)、[CONTRIBUTING.md](CONTRIBUTING.md)、[SECURITY.md](SECURITY.md) 和 [资料来源](references/sources.md)。
 

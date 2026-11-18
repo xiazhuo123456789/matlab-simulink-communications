@@ -22,6 +22,12 @@ Python unittest 共 12 项：相对路径、只读发现、MATLAB 引号转义�
 
 GitHub Actions 模板覆盖 Windows、Linux、macOS，但当前发布凭据缺少 workflow 权限，云端 CI 未启用。模板保存在 templates/ci-checks.yml。这些测试不需要 MATLAB，也不代表三个平台的 MATLAB 集成均已验证。
 
+## 目标电脑自检文档验证
+
+从 SKILL.md 原样提取环境探测代码，在本机 MATLAB R2024b 执行，退出码为 0。正确报告 PCWIN64、R2024b、Simulink 安装及许可条目可见，并检测到 SimulationInput 类和清单中的 16 个接口。未读取许可编号或上传环境数据。
+
+本次新增的是目标机自检和 AI 适配规则，不是遍历安装旧版本，也没有给现有仿真脚本加入所有版本的自动回退。该探测成功不扩大前述 R2024b 仿真实测范围。
+
 ## 尚未验证及已知限制
 
 - 未逐一验证各 AI 产品的原生安装、自动触发和桌面控制。
